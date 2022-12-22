@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import UserService from "../../Services/UserService";
-import { Table} from "react-bootstrap";
+import { ButtonGroup, Button, Table} from "react-bootstrap";
+import { Link } from 'react-router-dom';
 
 export default class UsersComponent extends Component{
     
@@ -17,6 +18,18 @@ export default class UsersComponent extends Component{
         });
     }
 
+    deleteUser = (userId) => {
+        UserService.deleteUser(userId)
+            .then((response) => {
+                if (response.data != null){
+                    alert("User deleted successfully.")
+                    this.setState({
+                        users: this.state.users.filter(user => user.id !== userId)
+                    })
+                }
+            });
+    }
+
     render(){
         return(
                 <div>
@@ -27,6 +40,7 @@ export default class UsersComponent extends Component{
                                 <td>User Id</td>
                                 <td>User Username</td>
                                 <td>User Role</td>
+                                <td>Actions</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -37,6 +51,15 @@ export default class UsersComponent extends Component{
                                         <td>{user.id}</td>
                                         <td>{user.username}</td>
                                         <td>{user.role}</td>
+                                        <td>
+                                            <ButtonGroup>
+                                                <Link to={"editUser/" + user.id} className="btn btn-sm btn-info">Edit</Link>
+                                                {' '}
+                                                <Button size="sm" variant="danger" onClick={()=>this.deleteUser(user.id)}>
+                                                    Delete
+                                                </Button>
+                                            </ButtonGroup>
+                                        </td>
                                     </tr>
                                 )
                             }

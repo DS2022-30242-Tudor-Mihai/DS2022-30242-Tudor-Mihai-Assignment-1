@@ -6,13 +6,14 @@ export default class AdDeviceComponent extends Component{
     constructor(props){
         super(props)
         this.state = this.initialState;
-    }
+    };
 
     initialState = {
+        id: '',
         description: '',
         address: '',
         max_h_consumption: ''
-    }
+    };
 
     submitDevice = event =>{
         event.preventDefault();
@@ -33,17 +34,64 @@ export default class AdDeviceComponent extends Component{
                     alert("The Request dind't work. Please try again.");
                 }
             });   
-    }
+    };
+
+    updateDevice = event =>{
+        event.preventDefault();
+
+        const device = {
+            id: this.state.id,
+            description: this.state.description,
+            address: this.state.address,
+            max_h_consumption: parseFloat(this.state.max_h_consumption)
+        };
+
+        DeviceService.putDevice(device)
+            .then((response) => {
+                if(response.data != null){
+                    this.setState(this.initialState);
+                    alert("Device Updated Succesfully");
+                    this.deviceList();
+                }
+                else{
+                    alert("The Request dind't work. Please try again.");
+                }
+            });   
+    };
 
     resetDevice = () => {
         this.setState(() => this.initialState);
-    }
+    };
 
     deviceChange = (event) =>{
         this.setState({
             [event.target.name]:event.target.value
         });
+    };
+
+    deviceList = event => {
+        window.location.href = '/adminPage/devices';
     }
+
+    componentDidMount(){
+        const deviceId = window.location.pathname.split('editDevice/')[1];
+        if (deviceId){
+            DeviceService.getDeviceById(deviceId)
+                .then((response) => {
+                    if (response.data !== null){
+                        this.setState({
+                            id: response.data.id,
+                            description: response.data.description,
+                            address: response.data.address,
+                            max_h_consumption: response.data.max_h_consumption
+                        });
+                    }
+
+                }).catch((error) => {
+                    alert("Error - " + error);
+                });
+        }
+    };
 
     render(){
         const {description, address, max_h_consumption} = this.state;
@@ -52,7 +100,7 @@ export default class AdDeviceComponent extends Component{
             <Card className={"border border-dark bg-dark text-white"}>
                 <Card.Header>Device's Data</Card.Header>
                 <Form   onReset={this.resetDevice}
-                        onSubmit={this.submitDevice} id="deviceFormId">
+                        onSubmit={this.state.id ? this.updateDevice : this.submitDevice} id="deviceFormId">
                     <Card.Body>
                         <Row className="mb-3">
                             <Form.Group as={Col} controlId="formGridAddress">
@@ -88,7 +136,7 @@ export default class AdDeviceComponent extends Component{
                     </Card.Body>
                     <Card.Footer style={{"textAlign":"right"}}>
                         <Button size="sm" variant="success" type="submit">
-                            Add Device
+                            {this.state.id ? "Update Device" : "Add Device"}
                         </Button>
                         {' '}
                         <Button size="sm" variant="info" type="reset">

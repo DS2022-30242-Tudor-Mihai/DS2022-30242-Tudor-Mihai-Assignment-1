@@ -1,6 +1,15 @@
+import axios from "axios";
 import React, {Component} from "react";
 import { Link } from 'react-router-dom';
 export default class ErrorPage extends Component{
+
+    clearStorage = event => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        localStorage.removeItem("role");
+        delete axios.defaults.headers.common["Authorization"];
+    }
+
     render(){
         return(
             <div class="p-5 bg-dark text-white rounded text-center">
@@ -11,7 +20,7 @@ export default class ErrorPage extends Component{
                     Maybe you accessed something that does not exist or something 
                         that you are not allowed to access
                 </h2>
-                    <Link   
+                    <Link onClick={this.clearStorage}
                         to="/" 
                         className="btn bg-dark text-white rounded text-center"
                         style={{ textDecoration: 'underline' }}

@@ -29,7 +29,7 @@ public class Device implements Serializable {
     @Column(name = "max_h_consumption")
     private Double max_h_consumption;
 
-    @OneToMany(mappedBy = "device")
+    @OneToMany(mappedBy = "device", orphanRemoval = true)
     private List<Reading> readings;
 
     public Device() {

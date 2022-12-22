@@ -26,8 +26,10 @@ const AdminManagementPage = () => {
                 <Route path="/" exact element={<WelcomeMessageComponent/>}/>
                   <Route path="/users" exact element={<UsersComponent/>}/>
                   <Route path="/addUsers" exact element={<AddUserComponent/>}/>
+                  <Route path="/users/editUser/:id" exact element={<AddUserComponent/>}/>
                   <Route path="/devices" exact element={<DevicesComponent/>}/>
                   <Route path="/addDevice" exact element={<AddDeviceComponent/>}/>
+                  <Route path="devices/editDevice/:id" exact element={<AddDeviceComponent/>}/>
                   <Route path="/addDeviceToUser" exact element={<AddDeviceToUserComponent/>}/>
                   <Route path="*" exact element={<ErrorPage/>}/>
               </Routes>

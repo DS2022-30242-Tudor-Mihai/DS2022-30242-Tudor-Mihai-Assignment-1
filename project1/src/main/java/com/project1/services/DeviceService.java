@@ -12,11 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DeviceService {
+public class  DeviceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceService.class);
     private final DeviceRepository deviceRepository;
     private final ReadingRepository readingRepository;
@@ -65,6 +70,13 @@ public class DeviceService {
         return devices.get();
     }
 
+    @Transactional
+    public Device getDeviceById(Integer id){
+        Optional<Device> device = deviceRepository.findById(id);
+        return device.get();
+    }
+
+    @Transactional
     public Device addReading(Integer deviceId, Integer readingId) {
         Optional<Device> device = deviceRepository.findById(deviceId);
         Optional<Reading> reading = readingRepository.findById(readingId);
@@ -75,5 +87,28 @@ public class DeviceService {
         }
 
         return device.get();
+    }
+
+    @Transactional
+    public List<Reading> getReadingsForDevice(Integer deviceId, String date){
+        List<Reading> readings = new ArrayList<>();
+        date = date + " 00:00:00";
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            Date parsedDate = dateFormat.parse(date);
+            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+            Device device = deviceRepository.getById(deviceId);
+            LocalDateTime timestampAuxStart = timestamp.toLocalDateTime().withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime timestampAuxEnd = timestamp.toLocalDateTime().withHour(23).withMinute(59).withSecond(59);
+            Timestamp timestampStart = Timestamp.valueOf(timestampAuxStart);
+            Timestamp timestampEnd = Timestamp.valueOf(timestampAuxEnd);
+//            System.out.println(timestampAuxStart);
+//            System.out.println(timestampAuxEnd);
+            readings = readingRepository.findReadingsByDeviceAndTimestampBetween(device, timestampStart, timestampEnd);
+//            System.out.println(readings.get(0).getConsumption());
+        } catch (Exception e){
+            System.out.println(e);
+        }
+        return readings;
     }
 }

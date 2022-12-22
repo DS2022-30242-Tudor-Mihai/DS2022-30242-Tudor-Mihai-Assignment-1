@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, {Component} from "react";
 import {} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -14,6 +15,7 @@ export default class WelcomeMessageComponent extends Component{
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         localStorage.removeItem("role");
+        delete axios.defaults.headers.common["Authorization"];
     }
 
     render(){

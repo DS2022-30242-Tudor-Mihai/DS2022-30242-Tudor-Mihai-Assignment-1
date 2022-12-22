@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import DeviceService from "../../Services/DeviceService";
-import { Table} from "react-bootstrap";
+import { ButtonGroup, Button, Table} from "react-bootstrap";
+import { Link } from 'react-router-dom';
 
 export default class DevicesComponent extends Component{
     
@@ -17,6 +18,19 @@ export default class DevicesComponent extends Component{
         });
     }
 
+    deleteDevice = (deviceId) => {
+        DeviceService.deleteDevice(deviceId)
+            .then((response) => {
+                if (response.data != null){
+                    alert("Device deleted successfully.")
+                    this.setState({
+                        devices: this.state.devices.filter(device => device.id !== deviceId)
+                    })
+                }
+            });
+    }
+
+
     render(){
         return(
                 <div>
@@ -28,6 +42,7 @@ export default class DevicesComponent extends Component{
                                 <td>Device Description</td>
                                 <td>Device Address</td>
                                 <td>Device Max Hourly Consumption</td>
+                                <td>Actions</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -39,6 +54,15 @@ export default class DevicesComponent extends Component{
                                         <td>{device.description}</td>
                                         <td>{device.address}</td>
                                         <td>{device.max_h_consumption}</td>
+                                        <td>
+                                            <ButtonGroup>
+                                                <Link to={"editDevice/" + device.id} className="btn btn-sm btn-info">Edit</Link>
+                                                {' '}
+                                                <Button size="sm" variant="danger" onClick={()=>this.deleteDevice(device.id)}>
+                                                    Delete
+                                                </Button>
+                                            </ButtonGroup>
+                                        </td>
                                     </tr>
                                 )
                             }

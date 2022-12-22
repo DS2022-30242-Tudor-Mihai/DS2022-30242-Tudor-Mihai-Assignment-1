@@ -29,7 +29,7 @@ public class Users implements Serializable {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "users", orphanRemoval = true)
     private List<Device> devices;
 
     public Users() {

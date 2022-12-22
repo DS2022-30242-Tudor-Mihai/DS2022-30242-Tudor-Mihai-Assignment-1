@@ -1,8 +1,11 @@
 package com.project1.controllers;
 
 import com.project1.dtos.builders.DeviceBuilder;
+import com.project1.dtos.builders.ReadingBuilder;
 import com.project1.dtos.validators.DeviceDTO;
+import com.project1.dtos.validators.ReadingDTO;
 import com.project1.entities.Device;
+import com.project1.entities.Reading;
 import com.project1.services.DeviceService;
 import com.project1.services.UserService;
 import org.springframework.hateoas.Link;
@@ -73,5 +76,18 @@ public class DeviceController {
     public ResponseEntity<?> addReading(@PathVariable("deviceId") Integer deviceId, @PathVariable("readingId") Integer readingId){
         Device device = deviceService.addReading(deviceId, readingId);
         return new ResponseEntity<>(DeviceBuilder.toDeviceDTO(device), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/find/{id}")
+    public ResponseEntity<?> getDeviceById(@PathVariable("id") Integer id){
+        Device device = deviceService.getDeviceById(id);
+        return new ResponseEntity<>(DeviceBuilder.toDeviceDTO(device), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/findReadings/{deviceId}/{date}")
+    public ResponseEntity<?> getReadingsByDeviceIdDate(@PathVariable("deviceId") Integer userId, @PathVariable("date") String date){
+        List<Reading> readings = deviceService.getReadingsForDevice(userId, date);
+        List<ReadingDTO> readingDTOS = readings.stream().map(ReadingBuilder::toReadingDTO).collect(Collectors.toList());
+        return new ResponseEntity<>(readingDTOS, HttpStatus.OK);
     }
 }

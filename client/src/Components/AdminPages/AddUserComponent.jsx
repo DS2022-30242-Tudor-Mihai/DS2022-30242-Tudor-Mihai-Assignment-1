@@ -6,13 +6,14 @@ export default class AddUserComponent extends Component{
     constructor(props){
         super(props)
         this.state = this.initialState;
-    }
+    };
 
     initialState = {
+        id:'',
         username:'',
         password:'',
         role:'administrator',
-    }
+    };
 
     submitUser = event =>{
         event.preventDefault();
@@ -33,17 +34,63 @@ export default class AddUserComponent extends Component{
                     alert("The Request dind't work. Please try again.");
                 }
             });   
-    }
+    };
+
+    updateUser = event => {
+        event.preventDefault();
+
+        const user = {
+            id: this.state.id,
+            username: this.state.username,
+            password: this.state.password,
+            role: this.state.role
+        }
+
+        UserService.putUser(user)
+            .then((response) => {
+                if(response.data != null){
+                    this.setState(this.initialState);
+                    alert("User Updated Succesfully");
+                    this.userList();
+                }
+                else{
+                    alert("The Request dind't work. Please try again.");
+                }
+            });
+    };
+
+    userList = event => {
+        window.location.href = '/adminPage/users';
+    };
 
     resetUser = () => {
         this.setState(() => this.initialState);
-    }
+    };
 
     userChange = (event) =>{
         this.setState({
             [event.target.name]:event.target.value
         });
-    }
+    };
+
+    componentDidMount(){
+        const userId = window.location.pathname.split('editUser/')[1];
+        if(userId){
+            UserService.findbyid(userId)
+                .then((response) => {
+                    if(response.data !== null){
+                        this.setState({
+                            id: response.data.id,
+                            username: response.data.username,
+                            role: response.data.role,
+                            password: response.data.password
+                        });
+                    } 
+                }).catch((error) => {
+                    alert("Error - " + error);
+                });
+        }
+    };
 
     render(){
         const {username, password, role} = this.state;
@@ -52,7 +99,7 @@ export default class AddUserComponent extends Component{
             <Card className={"border border-dark bg-dark text-white"}>
                 <Card.Header>User's Data</Card.Header>
                 <Form   onReset={this.resetUser}
-                        onSubmit={this.submitUser} id="userFormId">
+                        onSubmit={this.state.id ? this.updateUser : this.submitUser} id="userFormId">
                     <Card.Body>
                         <Row className="mb-3">
                             <Form.Group as={Col} controlId="formGridUsername">
@@ -64,7 +111,7 @@ export default class AddUserComponent extends Component{
                                     className={"bg-dark text-white"}
                                     placeholder="Enter username"/>
                             </Form.Group>
-                            <Form.Group as={Col} controlId="formGridPassword">
+                            {this.state.id ? <></> : <Form.Group as={Col} controlId="formGridPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="password" name="password"
@@ -72,7 +119,7 @@ export default class AddUserComponent extends Component{
                                     onChange={this.userChange}
                                     className={"bg-dark text-white"}
                                     placeholder="Enter password"/>
-                            </Form.Group>
+                            </Form.Group>}
                         </Row>
                         <Row className="mb-3">
                             <Form.Group as={Col} controlId="formGridRole">
@@ -91,7 +138,7 @@ export default class AddUserComponent extends Component{
                     </Card.Body>
                     <Card.Footer style={{"textAlign":"right"}}>
                         <Button size="sm" variant="success" type="submit">
-                            Add User
+                            {this.state.id ? "Update User" : "Add User"}
                         </Button>
                         {' '}
                         <Button size="sm" variant="info" type="reset">
