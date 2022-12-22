@@ -1,6 +1,7 @@
 package com.project1.dtos.validators;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Objects;
 

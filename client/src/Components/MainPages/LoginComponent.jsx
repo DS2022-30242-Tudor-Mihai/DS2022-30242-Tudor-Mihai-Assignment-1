@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import { Card, Form, Button, Col, Row} from "react-bootstrap";
 import LoginService from "../../Services/LoginService";
-import UserService from "../../Services/LoginService";
+import UserService from "../../Services/UserService";
 
 class LoginComponent extends Component{
     constructor(props){
@@ -17,13 +17,39 @@ class LoginComponent extends Component{
 
     submitUser = event => {
         event.preventDefault()
-        LoginService.authenticate(this.state.username, this.state.username)
+        const jwtRequest = {
+            username: this.state.username,
+            password: this.state.password
+        }
+        LoginService.authenticate(jwtRequest)
             .then((response) =>{
-                axios.defaults.headers["Authorization"] = response.data.token
-                UserService.getUsers()
-                //cod logarre -> get usre si dupa distribuire dupa role
-                //am link pentru id
+                console.log(response);
+                if(response.data != null){
+                    axios.defaults.headers["Authorization"] = 'Bearer ' + response.data.token;
+                    localStorage.setItem("token", 'Bearer ' + response.data.token);
+                    UserService.findbyusername(jwtRequest.username)
+                    .then((response) =>{
+                        if (response.data.role === 'administrator'){
+                            localStorage.setItem("username", response.data.username);
+                            localStorage.setItem("role", response.data.role);
+                            window.location.href = "/adminPage";
+                        }
+                        else if (response.data.role === 'client'){
+                            localStorage.setItem("username", response.data.username);
+                            localStorage.setItem("role", response.data.role);
+                            window.location.href = "/clientPage";
+                        }
+                        else{
+                            alert("Something went wrong");
+                            this.resetUser();
+                        }
+                    })
+                }
             })
+            .catch((error) => {
+                alert("This user does not exist");
+                this.resetUser();
+            });
     }
 
     userChange = (event) =>{
@@ -38,8 +64,8 @@ class LoginComponent extends Component{
 
     render(){
         return(
-            <div className="bg-dark">
-            <div className="mt-4 p-5 bg-dark text-white rounded text-center">
+            <div>
+            <div className="p-5 bg-dark text-white rounded text-center">
                 <h1>Welcome to your Smart Home App<br></br>
                     Please Log In</h1>
             </div>

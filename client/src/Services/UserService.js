@@ -1,9 +1,11 @@
 import axios from "axios";
 import PORT from "./_port.js";
 
-const NAME = 'user'
+const NAME = '/user'
 
 const USERS_URL = PORT + NAME ;
+const FIND_BY_ID_URL = USERS_URL + "/find1/"
+const FIND_BY_USERNAME_URL = USERS_URL + "/find2/"
 
 class UserService{
     getUsers(){
@@ -23,7 +25,11 @@ class UserService{
     }
 
     findbyid(id){
-        return axios.get(USERS_URL + "/find/" + id);
+        return axios.get(FIND_BY_ID_URL + id);
+    }
+
+    findbyusername(username){
+        return axios.get(FIND_BY_USERNAME_URL + username);
     }
 
     addDeviceToUser(userId, deviceId){

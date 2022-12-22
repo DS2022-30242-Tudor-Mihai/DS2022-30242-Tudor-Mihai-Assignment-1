@@ -91,4 +91,8 @@ public class Device implements Serializable {
     public void setReadings(List<Reading> readings) {
         this.readings = readings;
     }
+
+    public void addReading(Reading reading){
+        this.readings.add(reading);
+    }
 }

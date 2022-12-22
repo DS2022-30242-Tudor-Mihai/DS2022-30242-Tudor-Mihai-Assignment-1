@@ -58,6 +58,9 @@ public class UserService {
     @Transactional
     public Users update(UserDTO userDTO) {
         Optional<Users> user = userRepository.findById(userDTO.getId());
+        user.get().setUsername(userDTO.getUsername());
+        user.get().setPassword(userDTO.getPassword());
+        user.get().setRole(userDTO.getRole());
         user.ifPresent(userRepository::save);
         return user.get();
     }

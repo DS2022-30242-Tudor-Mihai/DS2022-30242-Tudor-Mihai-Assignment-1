@@ -1,9 +1,8 @@
 package com.project1.controllers;
 
 import com.project1.dtos.builders.DeviceBuilder;
-import com.project1.dtos.builders.UserBuilder;
 import com.project1.dtos.validators.DeviceDTO;
-import com.project1.entities.Users;
+import com.project1.entities.Device;
 import com.project1.services.DeviceService;
 import com.project1.services.UserService;
 import org.springframework.hateoas.Link;
@@ -20,20 +19,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping(value = "device")
+@RequestMapping(value = "/device")
 public class DeviceController {
     private final DeviceService deviceService;
-    private final UserService userService;
 
-    public DeviceController(DeviceService deviceService, UserService userService) {
+    public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
-        this.userService = userService;
     }
 
     @GetMapping()
-    public ResponseEntity<List<DeviceDTO>> getDevices() {
-        List<DeviceDTO> deviceDTOS = deviceService.getDevices();
-        for(DeviceDTO dto : deviceDTOS){
+    public ResponseEntity<?> getDevices() {
+        List<Device> devices = deviceService.getDevices();
+        List<DeviceDTO> deviceDTOS = devices.stream().map(DeviceBuilder::toDeviceDTO).collect(Collectors.toList());
+        for (DeviceDTO dto : deviceDTOS) {
             Link deviceLink = linkTo(methodOn(DeviceController.class)
                     .getDevices()).withRel("deviceDetails");
             dto.add(deviceLink);
@@ -42,33 +40,38 @@ public class DeviceController {
     }
 
     @PostMapping()
-    public ResponseEntity<DeviceDTO> insertDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
-
-        DeviceDTO deviceDTO1 = deviceService.insert(deviceDTO);
-        return new ResponseEntity<>(deviceDTO1, HttpStatus.CREATED);
+    public ResponseEntity<?> insertDevice(@RequestBody DeviceDTO deviceDTO) {
+        Device device = deviceService.insert(deviceDTO);
+        return new ResponseEntity<>(DeviceBuilder.toDeviceDTO(device), HttpStatus.CREATED);
     }
 
     @PutMapping()
-    public ResponseEntity<DeviceDTO> editDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
-        DeviceDTO deviceDTO1 = deviceService.update(deviceDTO);
-        return new ResponseEntity<>(deviceDTO1, HttpStatus.OK);
+    public ResponseEntity<?> editDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
+        Device device = deviceService.update(deviceDTO);
+        return new ResponseEntity<>(DeviceBuilder.toDeviceDTO(device), HttpStatus.OK);
     }
 
-    @DeleteMapping(value="/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteDevice(@PathVariable("id") Integer id) {
         deviceService.delete(id);
         return new ResponseEntity<>("Worked", HttpStatus.ACCEPTED);
     }
 
-//    @GetMapping(value = "/{username}")
-//    public ResponseEntity<List<DeviceDTO>> getDevicesByUserId(@PathVariable("username") String username) {
-//        Users user = UserBuilder.toEntityWithId(userService.findUserByUsername(username));
-//        List<DeviceDTO> deviceDTOS = user.getDevices().stream().map(DeviceBuilder::toDeviceDTO).collect(Collectors.toList());
-//        for(DeviceDTO dto : deviceDTOS){
-//            Link deviceLink = linkTo(methodOn(DeviceController.class)
-//                    .getDevices()).withRel("deviceDetails");
-//            dto.add(deviceLink);
-//        }
-//        return new ResponseEntity<>(deviceDTOS, HttpStatus.OK);
-//    }
+    @GetMapping(value = "/findAllByUseranme/{username}")
+    public ResponseEntity<?> getDevicesByUsersUsername(@PathVariable("username") String username){
+        List<Device> devices = deviceService.getDevicesByUsersUsername(username);
+        List<DeviceDTO> deviceDTOS = devices.stream().map(DeviceBuilder::toDeviceDTO).collect(Collectors.toList());
+        for (DeviceDTO dto : deviceDTOS) {
+            Link deviceLink = linkTo(methodOn(DeviceController.class)
+                    .getDevices()).withRel("deviceDetails");
+            dto.add(deviceLink);
+        }
+        return new ResponseEntity<>(deviceDTOS, HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{deviceId}/{readingId}")
+    public ResponseEntity<?> addReading(@PathVariable("deviceId") Integer deviceId, @PathVariable("readingId") Integer readingId){
+        Device device = deviceService.addReading(deviceId, readingId);
+        return new ResponseEntity<>(DeviceBuilder.toDeviceDTO(device), HttpStatus.OK);
+    }
 }

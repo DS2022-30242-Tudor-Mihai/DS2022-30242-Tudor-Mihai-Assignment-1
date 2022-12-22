@@ -29,7 +29,6 @@ public class Users implements Serializable {
     @Column(name = "role", nullable = false)
     private String role;
 
-
     @OneToMany(mappedBy = "users")
     private List<Device> devices;
 

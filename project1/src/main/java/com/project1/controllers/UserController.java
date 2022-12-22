@@ -2,9 +2,7 @@ package com.project1.controllers;
 
 
 import com.project1.dtos.builders.UserBuilder;
-import com.project1.dtos.validators.DeviceDTO;
 import com.project1.dtos.validators.UserDTO;
-import com.project1.entities.Device;
 import com.project1.entities.Users;
 import com.project1.services.UserService;
 import org.springframework.hateoas.Link;
@@ -21,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping(value = "user")
+@RequestMapping(value = "/user")
 public class UserController {
     private final UserService userService;
 
@@ -42,19 +40,19 @@ public class UserController {
     }
 
     @GetMapping(value = "/find1/{id}")
-    public ResponseEntity<?> findUserById(@PathVariable("id") Integer id){
-        Users user  = userService.findUserById(id);
+    public ResponseEntity<?> findUserById(@PathVariable("id") Integer id) {
+        Users user = userService.findUserById(id);
         return new ResponseEntity<>(UserBuilder.toUserDTO(user), HttpStatus.OK);
     }
 
     @GetMapping(value = "/find2/{username}")
-    public ResponseEntity<?> findUserByUsername(@PathVariable("username") String username){
+    public ResponseEntity<?> findUserByUsername(@PathVariable("username") String username) {
         Users user = userService.findUserByUsername(username);
         return new ResponseEntity<>(UserBuilder.toUserDTO(user), HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<?> insertUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> insertUser(@RequestBody UserDTO userDTO) {
         Users user = userService.insert(userDTO);
         return new ResponseEntity<>(UserBuilder.toUserDTO(user), HttpStatus.CREATED);
     }
@@ -72,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{userId}/{deviceId}")
-    public ResponseEntity<?> addDevice(@PathVariable("userId") Integer userId, @PathVariable("deviceId") Integer deviceId){
+    public ResponseEntity<?> addDevice(@PathVariable("userId") Integer userId, @PathVariable("deviceId") Integer deviceId) {
         Users user = userService.addDevice(userId, deviceId);
         return new ResponseEntity<>(UserBuilder.toUserDTO(user), HttpStatus.OK);
     }

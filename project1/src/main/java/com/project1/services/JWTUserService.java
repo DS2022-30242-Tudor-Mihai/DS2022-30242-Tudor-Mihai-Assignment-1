@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JWTUserService implements UserDetailsService {
@@ -21,13 +22,13 @@ public class JWTUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        Users user = userRepository.findByUsername(username);
+        Optional<Users> user = userRepository.findByUsername(username);
 
         if (user == null)
             throw new UsernameNotFoundException("User not found with username: " + username);
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority(user.getRole()));
-        return new User(user.getUsername(), user.getPassword(), authorityList);
+        authorityList.add(new SimpleGrantedAuthority(user.get().getRole()));
+        return new User(user.get().getUsername(), user.get().getPassword(), authorityList);
     }
 }
