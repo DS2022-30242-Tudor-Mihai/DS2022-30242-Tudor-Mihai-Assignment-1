@@ -1,6 +1,6 @@
 import { getDefaultNormalizer } from "@testing-library/react";
 import React, { Component } from "react";
-
+import {Button, Form} from "react-bootstrap";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,8 +26,9 @@ export default class ReadingsComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      deviceId: "",
-      date: "",
+      devices: [],
+      device: '',
+      date: '',
       readings: []
     };
   }
@@ -43,9 +44,15 @@ export default class ReadingsComponent extends Component {
     });
   };
 
+  componentDidMount(){
+    DeviceService.getDevicesByUserUsername(localStorage.getItem("username")).then((response) => {
+        this.setState({ devices : response.data , device : response.data[0].id})
+    });
+    }
+
   getData = event => {
     event.preventDefault();
-    DeviceService.findReadingsByDeviceIdDate(this.state.deviceId, this.state.date)
+    DeviceService.findReadingsByDeviceIdDate(this.state.device, this.state.date)
         .then((response) => {
             if(response.data != null){
                 const dataToShow = [];
@@ -78,25 +85,31 @@ export default class ReadingsComponent extends Component {
           >
             <div className="text-white">
               Device Id:
-              <input
-                type="text"
-                style={{ height: "30px", margin: "6px" }}
-                name="deviceId"
-                onChange={this.onChange}
-                value={this.deviceId}
-              />
+              <Form.Control required autoComplete="off" 
+               as="select" name="device" 
+               value={this.state.device} onChange={this.onChange} 
+               className={"bg-dark text-white"}>
+               {this.state.devices.map(device => 
+               (
+                   <option value={device.id}>
+                       {device.id}
+                   </option>
+               ))}
+              </Form.Control> 
             </div>
             <div className="m-2 text-white">
               Date:
               <input
                 type="date"
-                className="m-2"
+                className="m-2 bg-dark text-white"
                 name="date"
                 value={this.date}
                 onChange={this.onChange}
               />
             </div>
-            <input type="submit" value="Get" onClick={this.getData} />
+            <Button size="sm" variant="success" type="submit" onClick={this.getData}>
+             Get
+            </Button>
           </form>
           <div
             style={{
